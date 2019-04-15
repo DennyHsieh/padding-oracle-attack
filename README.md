@@ -2,6 +2,28 @@
 
 Decrypt the whole cipher text.
 
+## Execute
+
+```bash
+$ python client.py
+```
+
+## Method
+- Note: 下圖皆以每個block為8byte作範例，但我們的實作為每個block為16byte
+- 每次破解1個block需要本身待破解的block ciphertext，和前一個block ciphertext(作為暫時的IV)
+- 如下圖，從每個block最後1個byte開始
+- 做最後1 byte測試時，雖然我們不知道待解block解密後會長什麼樣子(紅色未知框框)，但我們可以控制前一個block的byte(藍色可控制框框)，藍色與紅色XOR後，如果結果為\x01，則猜中紅色block的值，保留它(綠底框框)
+![](img/ref_1.JPG)
+
+- 由上述例子繼續延伸，做倒數第二byte測試時，如果結果為\x02，則猜中紅色block的值，保留它(綠底框框)
+![](img/ref_2.JPG)
+
+- 以此類推，直到整個block都被猜中(例子為8bytes, 實作為16bytes)，這些猜中的值與前一個block ciphertext(作為暫時的IV)做XOR就是plaintext
+![](img/ref_3.JPG)
+
+- 完成最後一個block，就繼續用同樣步驟做倒數第二個block，直到做到第二個block為止
+- 第一個block本身就是IV，所以是明文可以直接解密
+
 ## Server
 - IP: 140.122.185.174
 - Port: 8081
@@ -17,7 +39,7 @@ Decrypt the whole cipher text.
 - IV_plaintext(hex): 5468697320697320616e204956343536
 - The IV is: This is an IV456
 
-- Execute log and result
+### Execute log and result
 
 ```
 The whole ciphertext is:
@@ -174,3 +196,5 @@ The IV is: This is an IV456
 The plaintext is: It was the best of times, it was the worst of times.
 ```
 
+## Reference
+- https://dotblogs.com.tw/kevintan1983/2010/10/07/18161
